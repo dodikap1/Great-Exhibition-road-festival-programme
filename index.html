@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GERF Saturday — My Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1e;
+  --bg2: #111827;
+  --bg3: #1a2235;
+  --amber: #f0a500;
+  --amber-dim: rgba(240,165,0,0.15);
+  --amber-border: rgba(240,165,0,0.4);
+  --white: #ffffff;
+  --muted: #8892a4;
+  --border: rgba(255,255,255,0.08);
+  --card-bg: #111827;
+  --card-hover: #16202f;
+  --done-opacity: 0.35;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --timed-accent: #f0a500;
+  --cancelled-color: #ff4d4d;
+  --green: #22c55e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* HEADER */
+#header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px 0;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.festival-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: var(--amber);
+  line-height: 1;
+}
+
+.festival-sub {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.clock {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  color: var(--white);
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+/* ZONE TABS */
+.zone-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.zone-scroll::-webkit-scrollbar { display: none; }
+
+.zone-pill {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.zone-pill:active { transform: scale(0.95); }
+.zone-pill.active {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #000;
+}
+
+/* VIEW TOGGLES */
+.view-toggles {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px 10px;
+  background: var(--bg);
+  position: sticky;
+  top: 108px;
+  z-index: 99;
+  border-bottom: 1px solid var(--border);
+}
+
+.view-btn {
+  flex: 1;
+  padding: 7px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.view-btn:active { transform: scale(0.97); }
+.view-btn.active {
+  background: var(--amber-dim);
+  border-color: var(--amber-border);
+  color: var(--amber);
+}
+
+/* PROGRESS BAR */
+.progress-bar-wrap {
+  padding: 10px 16px 0;
+  background: var(--bg);
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.progress-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--amber);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* EVENT LIST */
+#event-list {
+  padding: 12px 12px 80px;
+}
+
+.time-group {
+  margin-bottom: 4px;
+}
+
+.time-group-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  padding: 14px 4px 6px;
+  text-transform: uppercase;
+}
+
+/* EVENT CARD */
+.event-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 12px 12px 14px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+.event-card:active { background: var(--card-hover); }
+
+.event-card.timed {
+  border-left: 3px solid var(--amber);
+}
+.event-card.dropin {
+  border-left: 3px solid rgba(255,255,255,0.1);
+}
+.event-card.cancelled {
+  border-left: 3px solid var(--cancelled-color);
+  opacity: 0.5;
+}
+.event-card.done {
+  opacity: var(--done-opacity);
+}
+.event-card.done .event-name {
+  text-decoration: line-through;
+}
+
+.event-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+
+.event-time {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: var(--amber);
+}
+
+.event-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.badge-timed {
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid var(--amber-border);
+}
+.badge-dropin {
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.badge-cancelled {
+  background: rgba(255,77,77,0.15);
+  color: var(--cancelled-color);
+  border: 1px solid rgba(255,77,77,0.3);
+}
+.badge-zone {
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.event-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.3;
+  margin-bottom: 3px;
+}
+
+.event-venue {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* CHECKBOX */
+.event-check {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  transition: all 0.15s;
+}
+.event-card.done .event-check {
+  background: var(--green);
+  border-color: var(--green);
+}
+.check-icon {
+  display: none;
+  width: 14px;
+  height: 14px;
+}
+.event-card.done .check-icon { display: block; }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-state .big { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* NO SCROLL on zone when needed */
+@media (max-width: 900px) {
+  .festival-title { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="header-top">
+    <div>
+      <div class="festival-title">Great Exhibition Road</div>
+      <div class="festival-sub">SAT 6 JUNE 2026 &nbsp;·&nbsp; 12:00 – 18:00</div>
+    </div>
+    <div class="clock" id="clock">00:00</div>
+  </div>
+  <div class="zone-scroll" id="zone-tabs"></div>
+</div>
+
+<div class="view-toggles">
+  <button class="view-btn active" data-view="all">All</button>
+  <button class="view-btn" data-view="upnext">⚡ Up Next</button>
+  <button class="view-btn" data-view="mylist">My List</button>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-label">
+    <span id="progress-text">0 done</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div id="event-list"></div>
+
+<script>
+const ZONES = [
+  'All',
+  'Tech Zone',
+  'Happiness & Health',
+  'Underground Adventure',
+  'World Science',
+  'Be A Scientist',
+  'NextGen',
+  'Adults Only',
+  'Family Fun',
+  'General'
+];
+
+const EVENTS = [
+  // ── TIMED EVENTS ──────────────────────────────────────────
+  { id:'t01', name:'South Ken History Tours', time:'12:00', end:'13:00', venue:'Exhibition Road', desc:'Guided tour of Exhibition Road\'s hidden history. Repeat at 14:00.', zone:'General', timed:true },
+  { id:'t02', name:'Bollywood Under the Stars', time:'12:30', end:'13:10', venue:'Beit Quadrangle, Imperial College', desc:'Beginner Bollywood dance class with researchers exploring star formation. Repeats: 13:40, 15:00, 16:10, 17:20.', zone:'Adults Only', timed:true },
+  { id:'t03', name:'South Ken Nature Tours', time:'12:30', end:'13:30', venue:'Exhibition Road', desc:'Walkshop about nature and biodiversity in London. Repeats: 15:00, 16:00.', zone:'General', timed:true },
+  { id:'t04', name:'Inside Out Tour', time:'12:30', end:'13:30', venue:'Exhibition Road', desc:'Victorian architecture tour finishing inside the Royal Albert Hall. Repeats: 14:00, 15:30.', zone:'General', timed:true },
+  { id:'t05', name:'Giants on the Move: A Puppet Street Parade', time:'12:45', end:'13:15', venue:'Exhibition Road', desc:'Giant bamboo and dyed-cloth puppets parade down Exhibition Road. Repeat: 15:15.', zone:'General', timed:true },
+  { id:'t06', name:'Earthbeat: The Underground Disco', time:'12:45', end:'13:30', venue:'Prince\'s Gardens', desc:'Immersive dance experience for all ages, inspired by worlds beneath our feet. Repeats: 14:15, 15:45, 17:15.', zone:'Underground Adventure', timed:true },
+  { id:'t07', name:'Super Cool Chemistry Show', time:'13:00', end:'13:40', venue:'City & Guilds Building, LT200', desc:'Amazing reactions, slime and explosions. Family-friendly science show. Repeats: 14:20, 15:40, 17:00.', zone:'General', timed:true },
+  { id:'t08', name:'Rocket Mice', time:'13:30', end:'15:30', venue:'Kensington Gardens, East Albert Lawn', desc:'Build and launch rocket mice using squeeze power. Also 17:00–18:00.', zone:'Family Fun', timed:true },
+  { id:'t09', name:'Moving Through Time: A Dance Experiment', time:'13:45', end:'14:25', venue:'Goethe-Institut Auditorium', desc:'Part-disco, part-scientific experiment about the personal nature of time. Repeats: 15:15, 16:45.', zone:'General', timed:true },
+  { id:'t10', name:'Growing Food in Space', time:'14:00', end:'14:55', venue:'Sir Alexander Fleming Building, G16', desc:'Helen Sharman (first Briton in space) hosts scientists and a chef on the science of space food.', zone:'General', timed:true },
+  { id:'t11', name:'The Great Exhibition Experience Walk', time:'14:15', end:'15:00', venue:'Exhibition Road', desc:'Guided walk exploring perspectives on the Great Exhibition with Iya London. Repeat: 16:30.', zone:'General', timed:true },
+  { id:'t12', name:'The Great Exhibition & the Royal Parks Walking Tour', time:'14:30', end:'15:30', venue:'Exhibition Road', desc:'Discover the Royal Parks and their role in hosting the Great Exhibition of 1851. Repeat: 16:15.', zone:'General', timed:true },
+  { id:'t13', name:'Britain\'s First Black Musical Superstar', time:'15:00', end:'15:55', venue:'V&A, Lydia & Manfred Gorvy Lecture Theatre', desc:'Musicians and historians bring to life a recently rediscovered Victorian work.', zone:'General', timed:true },
+  { id:'t14', name:'Myth Busting the Immune System', time:'15:30', end:'16:15', venue:'Sir Alexander Fleming Building, G16', desc:'The science behind claims to "supercharge" immunity — orange juice, ageing, mental health.', zone:'General', timed:true },
+  { id:'t15', name:'Queer Albert Hall', time:'16:30', end:'17:15', venue:'V&A, Lydia & Manfred Gorvy Lecture Theatre', desc:'The Royal Albert Hall\'s surprising role in LGBTQ+ history — covert acts to bold queer visibility.', zone:'Adults Only', timed:true },
+  { id:'t16', name:'The Robot Doctor Will See You Now', time:'17:00', end:'17:55', venue:'Sir Alexander Fleming Building, G16', desc:'Live podcast recording on how AI and robotics are transforming medicine.', zone:'General', timed:true },
+  { id:'t17', name:'Dancing Nature: Science Storytelling Through Ballet', time:'13:30', end:'14:25', venue:'V&A, Lydia & Manfred Gorvy Lecture Theatre', desc:'Biology Ballerina explores the natural world through pliés and pirouettes.', zone:'General', timed:true, cancelled:true },
+
+  // ── ALL DAY DROP-IN ────────────────────────────────────────
+  // Exhibition Road
+  { id:'d01', name:'Main Stage', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Live music all day — jazz, classic brass bands, Cuban and Congolese fusion.', zone:'General', timed:false },
+  { id:'d02', name:'Paint Lab', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Ten new artworks painted live over the weekend, exploring how scientific ideas move through time.', zone:'General', timed:false },
+  { id:'d03', name:'A New Crystal Palace', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Design installations reimagining what the Crystal Palace would look like for our time.', zone:'General', timed:false },
+  { id:'d04', name:'The Fabric of Us', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Help create a woven installation about how diverse experiences shape understanding of brain ageing.', zone:'General', timed:false },
+  { id:'d05', name:'Maths in Motion', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Make art inspired by maths and the Islamic print tradition of Ebru marbling.', zone:'General', timed:false },
+  { id:'d06', name:'Climate Friendly Pop-Up Kitchen', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Sample planet-friendly dishes and discover practical ways to reduce your food footprint.', zone:'General', timed:false },
+  { id:'d07', name:'Giant DNA Paper Modelling', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Help build a record-breaking paper DNA helix and discover how the code of life is assembled.', zone:'General', timed:false },
+  { id:'d08', name:'The Crystal Palace Sandcastle', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Watch a giant sand sculpture of the iconic Crystal Palace take shape across the weekend.', zone:'General', timed:false },
+  { id:'d09', name:'The Great Counter Exhibition of 2026', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Reimagine the Great Exhibition of 1851 for the 21st century with your own stories and ideas.', zone:'General', timed:false },
+  { id:'d10', name:'Step into a Souvenir', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Snap a photo against large-scale backdrops and take home a memory of your festival day.', zone:'General', timed:false },
+  { id:'d11', name:'Machines of No Reason', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Invent, draw and print playful imaginary machines with RCA graduate Tamsin Loxley.', zone:'General', timed:false },
+  { id:'d12', name:'Prints, Pigments and Press', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Investigate the art of printing and the science of pigments in this Science Museum workshop.', zone:'General', timed:false },
+  { id:'d13', name:'1851der Tent', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Visualise sound, learn about hydrogen heroes and create in the Inventors Lab.', zone:'General', timed:false },
+  { id:'d14', name:'Drop-in Design: The Circulation Department', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Create wearable art with artist Gayle Chong Kwan.', zone:'General', timed:false },
+  { id:'d15', name:'Junk Sculptures', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Make your own junk sculpture from upcycled materials. Sessions: 12:00–15:00 and 15:30–18:00.', zone:'General', timed:false },
+  { id:'d16', name:'Roaming Performances', time:'12:00', end:'18:00', venue:'Exhibition Road', desc:'Wandering music, dance and other performances bringing the streets to life.', zone:'General', timed:false },
+  // Imperial College Road
+  { id:'d17', name:'Future Food Live', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Chefs and scientists whip up dishes exploring new flavours and ingredients for you to sample.', zone:'World Science', timed:false },
+  { id:'d18', name:'Maths Exploratorium', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Interactive maths marquee — a side of maths you never knew existed.', zone:'General', timed:false },
+  { id:'d19', name:'Designing for a Greener Future', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Design, build and race your own car made from broken toys and household materials.', zone:'General', timed:false },
+  { id:'d20', name:'UK Wildlife Wonders', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Creative workshop celebrating biodiversity plus a vibrant parade through the festival.', zone:'General', timed:false },
+  { id:'d21', name:'Electricity of Tomorrow', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Explore how your electricity will be generated and used in the future through interactive models.', zone:'General', timed:false },
+  { id:'d22', name:'Sound of Serotonin', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Scientists turn serotonin signals into music — an interactive blend of neuroscience and art.', zone:'General', timed:false },
+  { id:'d23', name:'Steelpan Jam-along', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Join Nostalgia, the UK\'s first steel band, and play, learn and explore steelpan heritage.', zone:'General', timed:false },
+  { id:'d24', name:'The Power of Water', time:'12:00', end:'18:00', venue:'Imperial College Road', desc:'Create waves, test sea defences, trigger a storm in a teacup inside a hydrodynamics lab.', zone:'General', timed:false },
+  // Tech Zone
+  { id:'d25', name:'Quantum Tech of the Future', time:'12:00', end:'18:00', venue:'Sir Alexander Fleming Building', desc:'Step inside the strange and spectacular world of quantum science and the technologies shaping our future.', zone:'Tech Zone', timed:false },
+  { id:'d26', name:'Resonating Possibilities', time:'12:00', end:'18:00', venue:'Sir Alexander Fleming Building', desc:'Immersive digital art exploring the strangeness of the quantum world.', zone:'Tech Zone', timed:false },
+  { id:'d27', name:'Robot Playground', time:'12:00', end:'18:00', venue:'Sir Alexander Fleming Building', desc:'A world where robots and humans collaborate to create positive change.', zone:'Tech Zone', timed:false },
+  { id:'d28', name:'Orbital Origami', time:'12:00', end:'18:00', venue:'Sir Alexander Fleming Building', desc:'Paper folding workshop and live demo of a foldable Mars heat shield from Imperial researchers.', zone:'Tech Zone', timed:false },
+  // Adults Only
+  { id:'d29', name:'Science Cabaret', time:'12:00', end:'18:00', venue:'Beit Quadrangle, Imperial College', desc:'High energy live shows, award-winning comedy, and making your own scientific mocktail.', zone:'Adults Only', timed:false },
+  { id:'d30', name:'Zen Bus: Creating Calm', time:'12:00', end:'18:00', venue:'Beit Quadrangle, Imperial College', desc:'Hop on the Zen Bus for playful immersive zen experiences designed to bring joy, calm and connection.', zone:'Adults Only', timed:false },
+  { id:'d31', name:'Creative Connections: Imperial Cosmologies', time:'12:00', end:'18:00', venue:'Beit Quadrangle, Imperial College', desc:'Victorian-inspired installation exploring Imperial College London\'s history and heritage.', zone:'Adults Only', timed:false },
+  { id:'d32', name:'Love on the Brain', time:'12:00', end:'18:00', venue:'Beit Quadrangle, Imperial College', desc:'Create hormone-inspired origami while exploring the science of attraction and desire.', zone:'Adults Only', timed:false },
+  { id:'d33', name:'Walking Through the Ages', time:'12:00', end:'18:00', venue:'Beit Quadrangle, Imperial College', desc:'How Londoners moved through the city, and what our walking patterns reveal about health.', zone:'Adults Only', timed:false },
+  { id:'d34', name:'Beads and Biomes', time:'12:00', end:'18:00', venue:'Beit Quadrangle, Imperial College', desc:'Create your own textile art to take home, inspired by the world of the vaginal microbiome.', zone:'Adults Only', timed:false },
+  // Happiness & Health
+  { id:'d35', name:'Gene Home', time:'12:00', end:'18:00', venue:'Queen\'s Tower Rooms, Sherfield Building', desc:'Immersive experience inside a 1970s Caribbean family living room — genes, culture and identity.', zone:'Happiness & Health', timed:false },
+  { id:'d36', name:'Medicine, Metabolism, Meals and Me', time:'12:00', end:'18:00', venue:'Queen\'s Tower Rooms, Sherfield Building', desc:'Explore how culture, food and traditional knowledge shape our health.', zone:'Happiness & Health', timed:false },
+  { id:'d37', name:'Resist the Resistance!', time:'12:00', end:'18:00', venue:'Queen\'s Tower Rooms, Sherfield Building', desc:'Play a game to explore antimicrobial resistance and help protect life-saving medicines.', zone:'Happiness & Health', timed:false },
+  { id:'d38', name:'Making the Invisible Visible', time:'12:00', end:'18:00', venue:'Queen\'s Tower Rooms, Sherfield Building', desc:'Make a mini zine reflecting on how invisible disabilities like Sickle Cell Disease shape daily life.', zone:'Happiness & Health', timed:false },
+  // Be A Scientist
+  { id:'d39', name:'Heart Heroes', time:'12:00', end:'18:00', venue:'Flowers Building, Imperial College', desc:'Roll the giant dice and put your heart to the test — learn about heart rate variability.', zone:'Be A Scientist', timed:false },
+  { id:'d40', name:'Ladders to Immunity', time:'12:00', end:'18:00', venue:'Flowers Building, Imperial College', desc:'Life-sized Snakes and Ladders where vaccines take centre stage.', zone:'Be A Scientist', timed:false },
+  { id:'d41', name:'Breathe, Bark and Predict Seizures', time:'12:00', end:'18:00', venue:'Flowers Building, Imperial College', desc:'Design seizure-predicting jewellery and learn about epilepsy and wearable technology.', zone:'Be A Scientist', timed:false },
+  { id:'d42', name:'RoboDoc: Robots and Radiation', time:'12:00', end:'18:00', venue:'Flowers Building, Imperial College', desc:'Interactive games exploring the past, present and future of medical imaging and robotic surgery.', zone:'Be A Scientist', timed:false },
+  // NextGen
+  { id:'d43', name:'Uncovering 1851', time:'12:00', end:'18:00', venue:'The Smith Centre, Science Museum', desc:'Textile art installation by Young Producers exploring hidden stories from the Great Exhibition.', zone:'NextGen', timed:false },
+  { id:'d44', name:'RoboFootball', time:'12:00', end:'18:00', venue:'The Smith Centre, Science Museum', desc:'Watch robots play football live — multi-agent coordination and strategy without human control.', zone:'NextGen', timed:false },
+  { id:'d45', name:'Curate a Great Exhibition!', time:'12:00', end:'18:00', venue:'The Smith Centre, Science Museum', desc:'Design your own miniature paper concertina exhibition with Assemblage Collective.', zone:'NextGen', timed:false },
+  // World Science
+  { id:'d46', name:'STEAMing Fibres and Fabrics', time:'12:00', end:'18:00', venue:'Business School, Imperial College', desc:'Find out how medical robotics and innovative fibre-based devices are revolutionising surgery.', zone:'World Science', timed:false },
+  { id:'d47', name:'Worlds Within Us', time:'12:00', end:'18:00', venue:'Business School, Imperial College', desc:'Interactive art installation — consider your relationship with the organisms living inside your body.', zone:'World Science', timed:false },
+  { id:'d48', name:'Make a Body Bot', time:'12:00', end:'18:00', venue:'Business School, Imperial College', desc:'Create textile body bots with artist Woo Jin Joo and bring them to life with pull-string mechanisms.', zone:'World Science', timed:false },
+  // Dangoor Plaza
+  { id:'d49', name:'Creative Connections: Imperial Letters', time:'12:00', end:'18:00', venue:'Dangoor Plaza, Imperial College Road', desc:'Bold, thought-provoking artwork exploring Imperial College London\'s history and heritage.', zone:'General', timed:false },
+  { id:'d50', name:'Bandstand', time:'12:00', end:'18:00', venue:'Dangoor Plaza, Imperial College Road', desc:'Dance the afternoon away — traditional music, dance workshops and live performances.', zone:'General', timed:false },
+  // City and Guilds
+  { id:'d51', name:'Cosmic Chalk Drawing', time:'12:00', end:'18:00', venue:'City & Guilds Building, Dalby Court', desc:'Chalk, movement and imagination bring black holes and galaxies to life.', zone:'General', timed:false },
+  { id:'d52', name:'Space Craft Corner', time:'12:00', end:'18:00', venue:'City & Guilds Building, Shields Space', desc:'Make your own black hole-inspired ornaments with theoretical physicists.', zone:'General', timed:false },
+  // Underground Adventure
+  { id:'d53', name:'Spores Galore: Wearable Wonders', time:'12:00', end:'18:00', venue:'Prince\'s Gardens', desc:'Create a unique wearable spore patch inspired by fungi that thrive beneath our feet.', zone:'Underground Adventure', timed:false },
+  { id:'d54', name:'Glow and Grow: Illuminating Bioengineering', time:'12:00', end:'18:00', venue:'Prince\'s Gardens', desc:'Luminous cells and soundscapes inspired by molecular biology — create for the glowing gazebo gallery.', zone:'Underground Adventure', timed:false },
+  // Goethe-Institut
+  { id:'d55', name:'Wuschel\'s Mission: Interactive Workshop', time:'12:00', end:'18:00', venue:'Goethe-Institut, 50 Princes Gate', desc:'Puzzles and a sticker treasure hunt featuring Wuschel from a new German learning resource.', zone:'General', timed:false },
+  { id:'d56', name:'Experience the Great Exhibition of 1851 in VR', time:'12:00', end:'17:00', venue:'Goethe-Institut, 50 Princes Gate', desc:'VR simulation of the original 1851 exhibits by researcher and digital designer Keith Wood.', zone:'General', timed:false },
+  { id:'d57', name:'Creating the World of Wuschel', time:'12:00', end:'18:00', venue:'Goethe-Institut, 50 Princes Gate', desc:'Original illustrations of Wuschel by The Gruffalo illustrator Axel Scheffler.', zone:'General', timed:false },
+  // NHM
+  { id:'d58', name:'Garden Bioblitz', time:'12:00', end:'16:00', venue:'Natural History Museum, Nature Discovery Garden', desc:'Explore the NHM\'s Nature Discovery Garden and discover the plants and animals that live there.', zone:'General', timed:false },
+  // Family Fun Zone
+  { id:'d59', name:'Under the Maypole', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Pop-up entertainment under a 12-foot maypole — dance, music and playing with sound.', zone:'Family Fun', timed:false },
+  { id:'d60', name:'The Story, Song, Wriggle and Rhyme Tent', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Stories, sing-alongs and rhyme sessions for children under 5 and their families.', zone:'Family Fun', timed:false },
+  { id:'d61', name:'Culture and Creativity in French', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Write a poem, enjoy storytelling and play games while practising French.', zone:'Family Fun', timed:false },
+  { id:'d62', name:'What\'s in Your Blood?', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Build a giant blood-themed sculpture and discover what your blood is made of.', zone:'Family Fun', timed:false },
+  { id:'d63', name:'The Atomic Arcade', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Explore nuclear reactors through an arcade game, and test radioactivity with a Geiger counter.', zone:'Family Fun', timed:false },
+  { id:'d64', name:'Molecules and Red Cells', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Make candy molecule models and race blood cells through mazes to discover how disease affects blood flow.', zone:'Family Fun', timed:false },
+  { id:'d65', name:'Eco Pawprints', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'How much does owning a pet impact the environment? Learn how to reduce your pets\' eco pawprints.', zone:'Family Fun', timed:false },
+  { id:'d66', name:'Wonderful Materials', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Climb like a gecko, reflect like a beetle — explore the potential of nature-inspired materials.', zone:'Family Fun', timed:false },
+  { id:'d67', name:'Antarctica: The Coolest Place on Earth', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'What it\'s like to conduct research on the coldest, driest and most remote continent on Earth.', zone:'Family Fun', timed:false },
+  { id:'d68', name:'Soaring Sailing Solar Planes', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Check out a solar-powered unmanned aircraft developed for a record-breaking flight attempt.', zone:'Family Fun', timed:false },
+  { id:'d69', name:'Future of Flight', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Design, fly and redesign the perfect paper plane — the ultimate engineering challenge.', zone:'Family Fun', timed:false },
+  { id:'d70', name:'Family Stage', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Interactive performances, music and science shows packed into a programme especially for families.', zone:'Family Fun', timed:false },
+  { id:'d71', name:'Discover the Royal Parks', time:'12:00', end:'18:00', venue:'Kensington Gardens, East Albert Lawn', desc:'Explore incredible wildlife and unique heritage through hands-on activities.', zone:'Family Fun', timed:false },
+  // Dyson Building
+  { id:'d72', name:'Discover Design Engineering', time:'12:00', end:'18:00', venue:'Dyson Building, Imperial College', desc:'Meet student innovators, researchers and start-ups whose technologies are reshaping everyday life.', zone:'General', timed:false },
+];
+
+// ── STATE ──────────────────────────────────────────────────
+let activeZone = 'All';
+let activeView = 'all';
+let checked = JSON.parse(localStorage.getItem('gerf_sat_checked') || '{}');
+
+function saveChecked() {
+  localStorage.setItem('gerf_sat_checked', JSON.stringify(checked));
+}
+
+// ── CLOCK ─────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = h + ':' + m;
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// ── TIME HELPERS ──────────────────────────────────────────
+function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function nowMinutes() {
+  const now = new Date();
+  return now.getHours() * 60 + now.getMinutes();
+}
+
+function isUpNext(ev) {
+  const start = timeToMinutes(ev.time);
+  const end = timeToMinutes(ev.end);
+  const now = nowMinutes();
+  return (start <= now + 90 && end > now);
+}
+
+// ── ZONE TABS ─────────────────────────────────────────────
+function renderZoneTabs() {
+  const container = document.getElementById('zone-tabs');
+  container.innerHTML = '';
+  ZONES.forEach(z => {
+    const btn = document.createElement('button');
+    btn.className = 'zone-pill' + (z === activeZone ? ' active' : '');
+    btn.textContent = z;
+    btn.addEventListener('click', () => {
+      activeZone = z;
+      renderZoneTabs();
+      renderEvents();
+    });
+    container.appendChild(btn);
+  });
+}
+
+// ── VIEW TOGGLES ──────────────────────────────────────────
+document.querySelectorAll('.view-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeView = btn.dataset.view;
+    renderEvents();
+  });
+});
+
+// ── FILTER ────────────────────────────────────────────────
+function filterEvents() {
+  return EVENTS.filter(ev => {
+    if (activeZone !== 'All' && ev.zone !== activeZone) return false;
+    if (activeView === 'upnext' && !isUpNext(ev)) return false;
+    if (activeView === 'mylist' && checked[ev.id]) return false;
+    return true;
+  });
+}
+
+// ── PROGRESS ─────────────────────────────────────────────
+function updateProgress() {
+  const total = EVENTS.filter(e => !e.cancelled).length;
+  const done = Object.values(checked).filter(Boolean).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-text').textContent = done + ' done of ' + total;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ── RENDER EVENTS ─────────────────────────────────────────
+function renderEvents() {
+  const list = document.getElementById('event-list');
+  const filtered = filterEvents();
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="big">🎪</div><p>No events match your filters.</p></div>';
+    return;
+  }
+
+  // Group by time
+  const groups = {};
+  filtered.forEach(ev => {
+    const key = ev.timed ? ev.time : 'dropin';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(ev);
+  });
+
+  // Sort keys: timed events first by time, then drop-ins
+  const sortedKeys = Object.keys(groups).sort((a, b) => {
+    if (a === 'dropin') return 1;
+    if (b === 'dropin') return -1;
+    return timeToMinutes(a) - timeToMinutes(b);
+  });
+
+  list.innerHTML = '';
+  sortedKeys.forEach(key => {
+    const group = document.createElement('div');
+    group.className = 'time-group';
+
+    const label = document.createElement('div');
+    label.className = 'time-group-label';
+    label.textContent = key === 'dropin' ? 'Drop in anytime · 12:00 – 18:00' : key;
+    group.appendChild(label);
+
+    groups[key].forEach(ev => {
+      group.appendChild(buildCard(ev));
+    });
+
+    list.appendChild(group);
+  });
+}
+
+function buildCard(ev) {
+  const card = document.createElement('div');
+  const isDone = !!checked[ev.id];
+  const classes = ['event-card'];
+  if (ev.timed) classes.push('timed');
+  else classes.push('dropin');
+  if (ev.cancelled) classes.push('cancelled');
+  if (isDone) classes.push('done');
+  card.className = classes.join(' ');
+  card.dataset.id = ev.id;
+
+  if (!ev.cancelled) {
+    card.addEventListener('click', () => toggleCheck(ev.id));
+  }
+
+  const zoneLabel = ev.zone !== 'General' ? `<span class="event-badge badge-zone">${ev.zone}</span>` : '';
+  const badge = ev.cancelled
+    ? '<span class="event-badge badge-cancelled">Cancelled</span>'
+    : ev.timed
+      ? '<span class="event-badge badge-timed">⏱ Timed</span>'
+      : '<span class="event-badge badge-dropin">Drop in</span>';
+
+  card.innerHTML = `
+    <div class="event-body">
+      <div class="event-meta">
+        <span class="event-time">${ev.time}${ev.timed ? '–' + ev.end : ''}</span>
+        ${badge}
+        ${zoneLabel}
+      </div>
+      <div class="event-name">${ev.name}</div>
+      <div class="event-venue">📍 ${ev.venue}</div>
+      <div class="event-desc">${ev.desc}</div>
+    </div>
+    <div class="event-check">
+      <svg class="check-icon" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 7L5.5 10.5L12 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  `;
+
+  return card;
+}
+
+function toggleCheck(id) {
+  checked[id] = !checked[id];
+  if (!checked[id]) delete checked[id];
+  saveChecked();
+  updateProgress();
+  renderEvents();
+}
+
+// ── INIT ──────────────────────────────────────────────────
+renderZoneTabs();
+renderEvents();
+updateProgress();
+</script>
+</body>
+</html>

@@ -38,6 +38,24 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* LOCATION BAR */
+#location-bar {
+  background: var(--amber);
+  padding: 9px 16px;
+  text-align: center;
+}
+#location-bar a {
+  color: #000;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  letter-spacing: 0.2px;
+}
+
 /* HEADER */
 #header {
   position: sticky;
@@ -338,6 +356,12 @@ body {
 </style>
 </head>
 <body>
+
+<div id="location-bar">
+  <a href="https://maps.google.com/?q=Exhibition+Road,+South+Kensington,+London+SW7+2BX" target="_blank">
+    📍 Exhibition Road, South Kensington, London SW7 2BX — Get directions
+  </a>
+</div>
 
 <div id="header">
   <div class="header-top">

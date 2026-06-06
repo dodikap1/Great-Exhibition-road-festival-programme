@@ -7,23 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0f1e;
-  --bg2: #111827;
-  --bg3: #1a2235;
-  --amber: #f0a500;
-  --amber-dim: rgba(240,165,0,0.15);
-  --amber-border: rgba(240,165,0,0.4);
-  --white: #ffffff;
-  --muted: #8892a4;
-  --border: rgba(255,255,255,0.08);
-  --card-bg: #111827;
-  --card-hover: #16202f;
+  --bg: #f0f4ff;
+  --bg2: #e8eef9;
+  --bg3: #dde5f5;
+  --amber: #e8920a;
+  --amber-dim: rgba(232,146,10,0.15);
+  --amber-border: rgba(232,146,10,0.4);
+  --white: #1a2340;
+  --muted: #5a6a8a;
+  --border: rgba(26,35,64,0.1);
+  --card-bg: #ffffff;
+  --card-hover: #f5f8ff;
   --done-opacity: 0.35;
   --radius: 10px;
   --radius-sm: 6px;
   --timed-accent: #f0a500;
-  --cancelled-color: #ff4d4d;
-  --green: #22c55e;
+  --cancelled-color: #d63030;
+  --green: #16a34a;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,14 +38,18 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+
 /* LOCATION BAR */
 #location-bar {
+  position: sticky;
+  top: 0;
+  z-index: 101;
   background: var(--amber);
-  padding: 9px 16px;
+  padding: 10px 16px;
   text-align: center;
 }
 #location-bar a {
-  color: #000;
+  color: #fff;
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
@@ -53,13 +57,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
+  font-family: 'Inter', sans-serif;
 }
 
 /* HEADER */
 #header {
   position: sticky;
-  top: 0;
+  top: 40px;
   z-index: 100;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
@@ -135,7 +140,7 @@ body {
   padding: 8px 16px 10px;
   background: var(--bg);
   position: sticky;
-  top: 108px;
+  top: 148px;
   z-index: 99;
   border-bottom: 1px solid var(--border);
 }
@@ -358,8 +363,8 @@ body {
 <body>
 
 <div id="location-bar">
-  <a href="https://maps.google.com/?q=Exhibition+Road,+South+Kensington,+London+SW7+2BX" target="_blank">
-    📍 Exhibition Road, South Kensington, London SW7 2BX — Get directions
+  <a href="geo:51.4956,-0.1748?q=Exhibition+Road,+South+Kensington,+London+SW7+2BX" onclick="if(navigator.userAgent.match(/iPhone|iPad|iPod/i)){this.href='maps://maps.apple.com/?daddr=Exhibition+Road,+South+Kensington,+London+SW7+2BX';}else if(navigator.userAgent.match(/Android/i)){this.href='geo:51.4956,-0.1748?q=Exhibition+Road,+South+Kensington,+London+SW7+2BX';}else{this.href='https://maps.google.com/?q=Exhibition+Road,+South+Kensington,+London+SW7+2BX';}" target="_blank">
+    📍 Exhibition Road, South Kensington, London SW7 2BX — Tap for directions
   </a>
 </div>
 
